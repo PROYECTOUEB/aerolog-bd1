@@ -114,6 +114,14 @@ Abra **http://127.0.0.1:5000** en el navegador.
 
 **Alternativa: ejecutarla dentro de la VM.** Instale Python (`sudo dnf install -y python3.12 python3.12-pip`), use `DB_HOST=127.0.0.1` y `APP_HOST=0.0.0.0` en `.env`, abra el puerto en el cortafuegos (`sudo firewall-cmd --permanent --add-port=5000/tcp && sudo firewall-cmd --reload`) y agregue en VirtualBox una regla de reenvío del puerto 5000 del anfitrión al 5000 de la VM.
 
+### Entorno en Visual Studio Code
+
+1. Abra la carpeta del proyecto en VS Code (Archivo > Abrir carpeta) y acepte instalar las extensiones recomendadas.
+2. Ejecute la tarea **AeroLog: instalar entorno** (Terminal > Ejecutar tarea). En Windows equivale a `powershell -ExecutionPolicy Bypass -File scripts/instalar_entorno.ps1`; en macOS o Linux, a `bash scripts/instalar_entorno.sh`. El script crea el entorno virtual `.venv`, instala las dependencias, crea `.env` e instala las extensiones.
+3. Escriba la contraseña de `aerolog_app` en `.env`.
+4. Pulse **F5** con la configuración **AeroLog: ejecutar aplicación** y abra http://127.0.0.1:5000.
+5. La extensión SQLTools incluye la conexión **AeroLog (VM PostgreSQL)** para consultar la base de datos desde VS Code.
+
 ## 3. Pruebas automáticas
 
 Con la base de datos cargada y el archivo `.env` configurado:

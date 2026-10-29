@@ -1,0 +1,19 @@
+{
+  "python.terminal.activateEnvironment": true,
+  "python.testing.unittestEnabled": true,
+  "python.testing.pytestEnabled": false,
+  "python.testing.unittestArgs": ["-v", "-s", ".", "-p", "test_*.py"],
+  "files.exclude": { "**/__pycache__": true, ".venv": true },
+  "sqltools.connections": [
+    {
+      "name": "AeroLog (VM PostgreSQL)",
+      "driver": "PostgreSQL",
+      "server": "127.0.0.1",
+      "port": 5432,
+      "database": "aerolog",
+      "username": "aerolog_app",
+      "askForPassword": true,
+      "previewLimit": 50
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "AeroLog: instalar entorno",
+      "type": "shell",
+      "windows": { "command": "powershell -ExecutionPolicy Bypass -File scripts/instalar_entorno.ps1" },
+      "linux": { "command": "bash scripts/instalar_entorno.sh" },
+      "osx": { "command": "bash scripts/instalar_entorno.sh" },
+      "problemMatcher": []
+    },
+    {
+      "label": "AeroLog: ejecutar pruebas",
+      "type": "shell",
+      "windows": { "command": ".venv\\Scripts\\python -m unittest -v" },
+      "linux": { "command": ".venv/bin/python -m unittest -v" },
+      "osx": { "command": ".venv/bin/python -m unittest -v" },
+      "group": "test",
+      "problemMatcher": []
+    }
+  ]
+}
