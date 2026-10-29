@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AeroLog – Escuela de aviación</title>
+  <link rel="icon" href="/static/img/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body>
+  <a class="saltar" href="#contenido">Ir al contenido</a>
+  <aside class="lateral" id="lateral">
+    <a class="marca" href="#/panel" aria-label="AeroLog, ir al panel">
+      <img src="/static/img/logo.svg" alt="" width="34" height="34">
+      <span>AeroLog</span>
+    </a>
+    <nav aria-label="Secciones">
+      <a href="#/panel" data-sec="panel">Panel de operaciones</a>
+      <a href="#/vuelos" data-sec="vuelos">Vuelos</a>
+      <a href="#/estudiantes" data-sec="estudiantes">Estudiantes</a>
+      <a href="#/instructores" data-sec="instructores">Instructores</a>
+      <a href="#/flota" data-sec="flota">Flota</a>
+      <a href="#/mantenimiento" data-sec="mantenimiento">Mantenimiento</a>
+      <a href="#/academico" data-sec="academico">Programas académicos</a>
+      <a href="#/consultas" data-sec="consultas">Consultas de álgebra</a>
+    </nav>
+    <a class="conexion" href="#/estado" data-sec="estado" id="conexion">
+      <span class="punto" aria-hidden="true"></span><span id="conexion-texto">Verificando conexión…</span>
+    </a>
+  </aside>
+  <button class="menu" id="menu" aria-controls="lateral" aria-expanded="false">Menú</button>
+  <main id="contenido" tabindex="-1"></main>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
