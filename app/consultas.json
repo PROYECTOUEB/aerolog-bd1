@@ -1,0 +1,628 @@
+[
+ {
+  "cat": "Selección y proyección",
+  "q": "¿Cuáles son la matrícula, el año de fabricación y las horas totales de las aeronaves que se encuentran disponibles para volar?",
+  "ra": [
+   "π{s:matricula, anio_fabricacion, horas_totales} ( σ{s:estado = 'DISPONIBLE'} (AERONAVE) )"
+  ],
+  "exp": "Se seleccionan las aeronaves cuyo estado es DISPONIBLE y se proyectan los tres atributos solicitados.",
+  "sql": "SELECT matricula, anio_fabricacion, horas_totales FROM AERONAVE WHERE estado = 'DISPONIBLE';"
+ },
+ {
+  "cat": "Selección y proyección",
+  "q": "¿Qué modelos de aeronave de la flota son bimotores y cuántos asientos tienen?",
+  "ra": [
+   "π{s:nombre, capacidad_asientos} ( σ{s:numero_motores = 2} (MODELO_AERONAVE) )"
+  ],
+  "exp": "Se filtran los modelos con dos motores y se muestran su nombre y su capacidad.",
+  "sql": "SELECT nombre, capacidad_asientos FROM MODELO_AERONAVE WHERE numero_motores = 2;"
+ },
+ {
+  "cat": "Selección y proyección",
+  "q": "¿Qué vuelos de navegación ya fueron realizados y entre qué aeródromos?",
+  "ra": [
+   "π{s:id_vuelo, fecha_vuelo, aerodromo_origen, aerodromo_destino} ( σ{s:tipo_vuelo = 'NAVEGACION' ∧ estado = 'REALIZADO'} (VUELO) )"
+  ],
+  "exp": "La condición compuesta con el operador lógico ∧ exige que se cumplan ambas condiciones.",
+  "sql": "SELECT id_vuelo, fecha_vuelo, aerodromo_origen, aerodromo_destino FROM VUELO WHERE tipo_vuelo = 'NAVEGACION' AND estado = 'REALIZADO';"
+ },
+ {
+  "cat": "Selección y proyección",
+  "q": "¿Qué vuelos están programados, con su fecha, hora de salida y aeronave asignada?",
+  "ra": [
+   "π{s:id_vuelo, fecha_vuelo, hora_salida, matricula} ( σ{s:estado = 'PROGRAMADO'} (VUELO) )"
+  ],
+  "exp": "Permite a la oficina de operaciones consultar la programación pendiente.",
+  "sql": "SELECT id_vuelo, fecha_vuelo, hora_salida, matricula FROM VUELO WHERE estado = 'PROGRAMADO';"
+ },
+ {
+  "cat": "Selección y proyección",
+  "q": "¿Qué aeródromos tienen una pista principal de al menos 2 000 metros?",
+  "ra": [
+   "π{s:codigo_oaci, nombre, ciudad} ( σ{s:longitud_pista_m ≥ 2000} (AERODROMO) )"
+  ],
+  "exp": "Selección con un operador de comparación sobre un atributo numérico.",
+  "sql": "SELECT codigo_oaci, nombre, ciudad FROM AERODROMO WHERE longitud_pista_m >= 2000;"
+ },
+ {
+  "cat": "Selección y proyección",
+  "q": "¿Qué pagos superiores a $10 000 000 se realizaron por transferencia?",
+  "ra": [
+   "π{s:id_pago, id_matricula, fecha_pago, valor} ( σ{s:valor > 10000000 ∧ medio_pago = 'TRANSFERENCIA'} (PAGO) )"
+  ],
+  "exp": "Se combinan una condición numérica y una condición sobre un atributo categórico.",
+  "sql": "SELECT id_pago, id_matricula, fecha_pago, valor FROM PAGO WHERE valor > 10000000 AND medio_pago = 'TRANSFERENCIA';"
+ },
+ {
+  "cat": "Selección y proyección",
+  "q": "¿Qué órdenes de trabajo de mantenimiento siguen abiertas?",
+  "ra": [
+   "π{s:id_orden, matricula, tipo_orden, fecha_apertura} ( σ{s:fecha_cierre IS NULL} (ORDEN_TRABAJO) )"
+  ],
+  "exp": "Una orden abierta no tiene fecha de cierre; la selección evalúa la ausencia de valor (nulo).",
+  "sql": "SELECT id_orden, matricula, tipo_orden, fecha_apertura FROM ORDEN_TRABAJO WHERE fecha_cierre IS NULL;"
+ },
+ {
+  "cat": "Selección y proyección",
+  "q": "¿Qué maniobras pertenecen a las fases de instrumentos o avanzada?",
+  "ra": [
+   "π{s:id_maniobra, nombre, fase} ( σ{s:fase = 'INSTRUMENTOS' ∨ fase = 'AVANZADA'} (MANIOBRA) )"
+  ],
+  "exp": "El operador lógico ∨ selecciona las tuplas que cumplen al menos una de las condiciones.",
+  "sql": "SELECT id_maniobra, nombre, fase FROM MANIOBRA WHERE fase = 'INSTRUMENTOS' OR fase = 'AVANZADA';"
+ },
+ {
+  "cat": "Selección y proyección",
+  "q": "¿Qué notas finales registradas son reprobatorias (menores a 3,0)?",
+  "ra": [
+   "π{s:id_estudiante, id_curso, nota_final} ( σ{s:nota_final < 3.0} (CALIFICACION) )"
+  ],
+  "exp": "Identifica a los estudiantes que deben repetir un curso teórico.",
+  "sql": "SELECT id_estudiante, id_curso, nota_final FROM CALIFICACION WHERE nota_final < 3.0;"
+ },
+ {
+  "cat": "Selección y proyección",
+  "q": "¿Qué tipos de órdenes de trabajo se han registrado en la escuela?",
+  "ra": [
+   "π{s:tipo_orden} (ORDEN_TRABAJO)"
+  ],
+  "exp": "La proyección elimina los duplicados, por lo que cada tipo aparece una sola vez; en SQL se requiere DISTINCT.",
+  "sql": "SELECT DISTINCT tipo_orden FROM ORDEN_TRABAJO;"
+ },
+ {
+  "cat": "Producto cartesiano y reunión",
+  "q": "¿Qué fabricante produce cada uno de los modelos de la flota? (resuelta con producto cartesiano)",
+  "ra": [
+   "π{s:MODELO_AERONAVE.nombre, FABRICANTE.nombre} ( σ{s:MODELO_AERONAVE.id_fabricante = FABRICANTE.id_fabricante} (MODELO_AERONAVE × FABRICANTE) )"
+  ],
+  "exp": "El producto cartesiano genera todas las combinaciones modelo–fabricante y la selección conserva solo las que coinciden en id_fabricante.",
+  "sql": "SELECT M.nombre AS modelo, F.nombre AS fabricante FROM MODELO_AERONAVE M, FABRICANTE F WHERE M.id_fabricante = F.id_fabricante;"
+ },
+ {
+  "cat": "Producto cartesiano y reunión",
+  "q": "¿Cuál es el modelo y el fabricante de cada aeronave de la flota? (resuelta con reunión theta)",
+  "ra": [
+   "R1 ← AERONAVE ⋈{s:AERONAVE.id_modelo = MODELO_AERONAVE.id_modelo} MODELO_AERONAVE",
+   "R2 ← R1 ⋈{s:R1.id_fabricante = FABRICANTE.id_fabricante} FABRICANTE",
+   "π{s:matricula, MODELO_AERONAVE.nombre, FABRICANTE.nombre} (R2)"
+  ],
+  "exp": "Se encadenan dos reuniones theta; se usan relaciones intermedias (←) para facilitar la lectura.",
+  "sql": "SELECT A.matricula, M.nombre AS modelo, F.nombre AS fabricante\nFROM AERONAVE A JOIN MODELO_AERONAVE M ON A.id_modelo = M.id_modelo\nJOIN FABRICANTE F ON M.id_fabricante = F.id_fabricante;"
+ },
+ {
+  "cat": "Producto cartesiano y reunión",
+  "q": "¿Cuáles son el código, los nombres y los apellidos de todos los estudiantes?",
+  "ra": [
+   "π{s:codigo_estudiante, nombres, apellidos} (ESTUDIANTE ⋈ PERSONA)"
+  ],
+  "exp": "ESTUDIANTE y PERSONA solo comparten el atributo id_persona, por lo que la reunión natural une cada estudiante con sus datos personales.",
+  "sql": "SELECT E.codigo_estudiante, P.nombres, P.apellidos FROM ESTUDIANTE E NATURAL JOIN PERSONA P;"
+ },
+ {
+  "cat": "Producto cartesiano y reunión",
+  "q": "¿Qué instructores tienen una licencia que vence antes del 1 de enero de 2027?",
+  "ra": [
+   "π{s:nombres, apellidos, numero_licencia, fecha_venc_licencia} ( σ{s:fecha_venc_licencia < '2027-01-01'} (INSTRUCTOR) ⋈ PERSONA )"
+  ],
+  "exp": "Se aplica primero la selección sobre INSTRUCTOR para reducir el tamaño de la reunión.",
+  "sql": "SELECT P.nombres, P.apellidos, I.numero_licencia, I.fecha_venc_licencia FROM INSTRUCTOR I NATURAL JOIN PERSONA P WHERE I.fecha_venc_licencia < '2027-01-01';"
+ },
+ {
+  "cat": "Producto cartesiano y reunión",
+  "q": "¿Cuáles son los nombres y licencias de los técnicos especializados en aviónica?",
+  "ra": [
+   "π{s:nombres, apellidos, numero_licencia} ( σ{s:especialidad = 'AVIONICA'} (TECNICO) ⋈ PERSONA )"
+  ],
+  "exp": "Reunión natural entre el subtipo TECNICO y su supertipo PERSONA.",
+  "sql": "SELECT P.nombres, P.apellidos, T.numero_licencia FROM TECNICO T NATURAL JOIN PERSONA P WHERE T.especialidad = 'AVIONICA';"
+ },
+ {
+  "cat": "Producto cartesiano y reunión",
+  "q": "¿Qué cursos componen el programa de Piloto Comercial de Avión y en qué etapa se dictan?",
+  "ra": [
+   "R1 ← σ{s:nombre = 'Piloto Comercial de Avión'} (PROGRAMA) ⋈{s:PROGRAMA.id_programa = PLAN_ESTUDIOS.id_programa} PLAN_ESTUDIOS",
+   "π{s:CURSO.nombre, etapa} ( R1 ⋈{s:R1.id_curso = CURSO.id_curso} CURSO )"
+  ],
+  "exp": "Se recorre la relación muchos a muchos entre PROGRAMA y CURSO a través de la tabla asociativa PLAN_ESTUDIOS.",
+  "sql": "SELECT C.nombre, PE.etapa FROM PROGRAMA P JOIN PLAN_ESTUDIOS PE ON P.id_programa = PE.id_programa\nJOIN CURSO C ON PE.id_curso = C.id_curso WHERE P.nombre = 'Piloto Comercial de Avión';"
+ },
+ {
+  "cat": "Producto cartesiano y reunión",
+  "q": "¿Qué vuelos ha realizado el estudiante con código E-0003, en qué fecha y en qué aeronave?",
+  "ra": [
+   "π{s:id_vuelo, fecha_vuelo, tipo_vuelo, matricula} ( σ{s:codigo_estudiante = 'E-0003'} (ESTUDIANTE) ⋈{s:ESTUDIANTE.id_persona = VUELO.id_estudiante} σ{s:estado = 'REALIZADO'} (VUELO) )"
+  ],
+  "exp": "Equivale a consultar la bitácora de vuelo del estudiante.",
+  "sql": "SELECT V.id_vuelo, V.fecha_vuelo, V.tipo_vuelo, V.matricula FROM ESTUDIANTE E JOIN VUELO V ON E.id_persona = V.id_estudiante\nWHERE E.codigo_estudiante = 'E-0003' AND V.estado = 'REALIZADO';"
+ },
+ {
+  "cat": "Producto cartesiano y reunión",
+  "q": "¿A qué aeródromo y ciudad se dirigió cada vuelo de navegación realizado?",
+  "ra": [
+   "π{s:id_vuelo, fecha_vuelo, nombre, ciudad} ( σ{s:tipo_vuelo = 'NAVEGACION' ∧ estado = 'REALIZADO'} (VUELO) ⋈{s:aerodromo_destino = codigo_oaci} AERODROMO )"
+  ],
+  "exp": "Reunión theta entre la llave foránea de rol aerodromo_destino y la llave primaria de AERODROMO.",
+  "sql": "SELECT V.id_vuelo, V.fecha_vuelo, A.nombre, A.ciudad FROM VUELO V JOIN AERODROMO A ON V.aerodromo_destino = A.codigo_oaci\nWHERE V.tipo_vuelo = 'NAVEGACION' AND V.estado = 'REALIZADO';"
+ },
+ {
+  "cat": "Producto cartesiano y reunión",
+  "q": "¿En qué programa está matriculado actualmente cada estudiante con matrícula activa?",
+  "ra": [
+   "R1 ← σ{s:estado = 'ACTIVA'} (MATRICULA) ⋈{s:MATRICULA.id_estudiante = PERSONA.id_persona} PERSONA",
+   "π{s:nombres, apellidos, PROGRAMA.nombre} ( R1 ⋈{s:R1.id_programa = PROGRAMA.id_programa} PROGRAMA )"
+  ],
+  "exp": "Se combinan la matrícula, los datos personales del estudiante y el programa.",
+  "sql": "SELECT P.nombres, P.apellidos, PR.nombre AS programa FROM MATRICULA M JOIN PERSONA P ON M.id_estudiante = P.id_persona\nJOIN PROGRAMA PR ON M.id_programa = PR.id_programa WHERE M.estado = 'ACTIVA';"
+ },
+ {
+  "cat": "Producto cartesiano y reunión",
+  "q": "¿Qué repuestos se han instalado en la aeronave HK-5021 y quién es su proveedor?",
+  "ra": [
+   "R1 ← σ{s:matricula = 'HK-5021'} (ORDEN_TRABAJO) ⋈{s:ORDEN_TRABAJO.id_orden = DETALLE_REPUESTO.id_orden} DETALLE_REPUESTO",
+   "R2 ← R1 ⋈{s:R1.numero_parte = REPUESTO.numero_parte} REPUESTO",
+   "π{s:id_orden, REPUESTO.numero_parte, REPUESTO.descripcion, cantidad, razon_social} ( R2 ⋈{s:R2.id_proveedor = PROVEEDOR.id_proveedor} PROVEEDOR )"
+  ],
+  "exp": "Se usa reunión theta y no natural porque ORDEN_TRABAJO y REPUESTO comparten el nombre de atributo descripcion, que no debe usarse para unir.",
+  "sql": "SELECT O.id_orden, R.numero_parte, R.descripcion, D.cantidad, PV.razon_social FROM ORDEN_TRABAJO O\nJOIN DETALLE_REPUESTO D ON O.id_orden = D.id_orden JOIN REPUESTO R ON D.numero_parte = R.numero_parte\nJOIN PROVEEDOR PV ON R.id_proveedor = PV.id_proveedor WHERE O.matricula = 'HK-5021';"
+ },
+ {
+  "cat": "Producto cartesiano y reunión",
+  "q": "¿Qué técnicos trabajaron en órdenes de inspección anual y cuántas horas dedicaron?",
+  "ra": [
+   "R1 ← σ{s:tipo_orden = 'ANUAL'} (ORDEN_TRABAJO) ⋈{s:ORDEN_TRABAJO.id_orden = ASIGNACION_TECNICO.id_orden} ASIGNACION_TECNICO",
+   "π{s:id_orden, matricula, nombres, apellidos, horas_trabajadas} ( R1 ⋈{s:R1.id_tecnico = PERSONA.id_persona} PERSONA )"
+  ],
+  "exp": "Combina la orden, la asignación del técnico y sus datos personales.",
+  "sql": "SELECT O.id_orden, O.matricula, P.nombres, P.apellidos, A.horas_trabajadas FROM ORDEN_TRABAJO O\nJOIN ASIGNACION_TECNICO A ON O.id_orden = A.id_orden JOIN PERSONA P ON A.id_tecnico = P.id_persona WHERE O.tipo_orden = 'ANUAL';"
+ },
+ {
+  "cat": "Producto cartesiano y reunión",
+  "q": "¿Qué maniobras se evaluaron en el vuelo 1001 y qué calificación obtuvo el estudiante en cada una?",
+  "ra": [
+   "π{s:nombre, fase, calificacion} ( σ{s:id_vuelo = 1001} (EVALUACION_MANIOBRA) ⋈ MANIOBRA )"
+  ],
+  "exp": "EVALUACION_MANIOBRA y MANIOBRA solo comparten id_maniobra, por lo que se puede usar reunión natural.",
+  "sql": "SELECT M.nombre, M.fase, E.calificacion FROM EVALUACION_MANIOBRA E NATURAL JOIN MANIOBRA M WHERE E.id_vuelo = 1001;"
+ },
+ {
+  "cat": "Producto cartesiano y reunión",
+  "q": "¿Qué instructores están habilitados para volar el modelo DA42-VI?",
+  "ra": [
+   "R1 ← σ{s:nombre = 'DA42-VI'} (MODELO_AERONAVE) ⋈{s:MODELO_AERONAVE.id_modelo = HABILITACION.id_modelo} HABILITACION",
+   "π{s:nombres, apellidos, fecha_habilitacion} ( R1 ⋈{s:R1.id_instructor = PERSONA.id_persona} PERSONA )"
+  ],
+  "exp": "Se recorre la relación muchos a muchos entre INSTRUCTOR y MODELO_AERONAVE.",
+  "sql": "SELECT P.nombres, P.apellidos, H.fecha_habilitacion FROM MODELO_AERONAVE M JOIN HABILITACION H ON M.id_modelo = H.id_modelo\nJOIN PERSONA P ON H.id_instructor = P.id_persona WHERE M.nombre = 'DA42-VI';"
+ },
+ {
+  "cat": "Producto cartesiano y reunión",
+  "q": "¿Qué vuelos tuvieron un informe con resultado insatisfactorio y qué estudiante los realizó?",
+  "ra": [
+   "π{s:id_vuelo, fecha_vuelo, codigo_estudiante} ( (σ{s:resultado = 'INSATISFACTORIO'} (INFORME_VUELO) ⋈ VUELO) ⋈{s:id_estudiante = ESTUDIANTE.id_persona} ESTUDIANTE )"
+  ],
+  "exp": "INFORME_VUELO y VUELO comparten únicamente id_vuelo, por lo que se unen con reunión natural; luego se une con ESTUDIANTE.",
+  "sql": "SELECT V.id_vuelo, V.fecha_vuelo, E.codigo_estudiante FROM INFORME_VUELO I JOIN VUELO V ON I.id_vuelo = V.id_vuelo\nJOIN ESTUDIANTE E ON V.id_estudiante = E.id_persona WHERE I.resultado = 'INSATISFACTORIO';"
+ },
+ {
+  "cat": "Renombramiento y reunión de una relación consigo misma",
+  "q": "Para cada vuelo de navegación realizado, ¿cuál es el nombre del aeródromo de origen y el del aeródromo de destino?",
+  "ra": [
+   "O ← ρ{s:O} (AERODROMO)     D ← ρ{s:D} (AERODROMO)",
+   "R1 ← σ{s:tipo_vuelo = 'NAVEGACION' ∧ estado = 'REALIZADO'} (VUELO) ⋈{s:aerodromo_origen = O.codigo_oaci} O",
+   "π{s:id_vuelo, O.nombre, D.nombre} ( R1 ⋈{s:aerodromo_destino = D.codigo_oaci} D )"
+  ],
+  "exp": "AERODROMO se renombra dos veces para distinguir su rol de origen y su rol de destino.",
+  "sql": "SELECT V.id_vuelo, O.nombre AS origen, D.nombre AS destino FROM VUELO V\nJOIN AERODROMO O ON V.aerodromo_origen = O.codigo_oaci JOIN AERODROMO D ON V.aerodromo_destino = D.codigo_oaci\nWHERE V.tipo_vuelo = 'NAVEGACION' AND V.estado = 'REALIZADO';"
+ },
+ {
+  "cat": "Renombramiento y reunión de una relación consigo misma",
+  "q": "¿Cuál es el nombre del estudiante y el nombre del instructor de cada vuelo de examen?",
+  "ra": [
+   "PE ← ρ{s:PE} (PERSONA)     PI ← ρ{s:PI} (PERSONA)",
+   "R1 ← σ{s:tipo_vuelo = 'EXAMEN'} (VUELO) ⋈{s:id_estudiante = PE.id_persona} PE",
+   "π{s:id_vuelo, fecha_vuelo, PE.nombres, PE.apellidos, PI.nombres, PI.apellidos} ( R1 ⋈{s:id_instructor = PI.id_persona} PI )"
+  ],
+  "exp": "PERSONA participa con dos roles: como estudiante y como instructor del mismo vuelo.",
+  "sql": "SELECT V.id_vuelo, V.fecha_vuelo, PE.nombres || ' ' || PE.apellidos AS estudiante, PI.nombres || ' ' || PI.apellidos AS instructor\nFROM VUELO V JOIN PERSONA PE ON V.id_estudiante = PE.id_persona JOIN PERSONA PI ON V.id_instructor = PI.id_persona\nWHERE V.tipo_vuelo = 'EXAMEN';"
+ },
+ {
+  "cat": "Renombramiento y reunión de una relación consigo misma",
+  "q": "¿Qué pares de aeronaves de la flota pertenecen al mismo modelo?",
+  "ra": [
+   "π{s:A1.matricula, A2.matricula} ( ρ{s:A1} (AERONAVE) ⋈{s:A1.id_modelo = A2.id_modelo ∧ A1.matricula < A2.matricula} ρ{s:A2} (AERONAVE) )"
+  ],
+  "exp": "Reunión de AERONAVE consigo misma; la condición A1.matricula < A2.matricula evita pares repetidos y pares de una aeronave consigo misma.",
+  "sql": "SELECT A1.matricula, A2.matricula FROM AERONAVE A1 JOIN AERONAVE A2\nON A1.id_modelo = A2.id_modelo AND A1.matricula < A2.matricula;"
+ },
+ {
+  "cat": "Renombramiento y reunión de una relación consigo misma",
+  "q": "¿Qué vuelos de navegación llegaron a un aeródromo de menor elevación que la del aeródromo de origen?",
+  "ra": [
+   "O ← ρ{s:O} (AERODROMO)     D ← ρ{s:D} (AERODROMO)",
+   "R1 ← (σ{s:tipo_vuelo = 'NAVEGACION'} (VUELO) ⋈{s:aerodromo_origen = O.codigo_oaci} O) ⋈{s:aerodromo_destino = D.codigo_oaci} D",
+   "π{s:id_vuelo, O.codigo_oaci, O.elevacion_ft, D.codigo_oaci, D.elevacion_ft} ( σ{s:D.elevacion_ft < O.elevacion_ft} (R1) )"
+  ],
+  "exp": "La selección compara atributos de las dos copias renombradas de AERODROMO.",
+  "sql": "SELECT V.id_vuelo, O.codigo_oaci, O.elevacion_ft, D.codigo_oaci, D.elevacion_ft FROM VUELO V\nJOIN AERODROMO O ON V.aerodromo_origen = O.codigo_oaci JOIN AERODROMO D ON V.aerodromo_destino = D.codigo_oaci\nWHERE V.tipo_vuelo = 'NAVEGACION' AND D.elevacion_ft < O.elevacion_ft;"
+ },
+ {
+  "cat": "Renombramiento y reunión de una relación consigo misma",
+  "q": "¿Qué pares de modelos de aeronave son producidos por el mismo fabricante?",
+  "ra": [
+   "π{s:M1.nombre, M2.nombre} ( ρ{s:M1} (MODELO_AERONAVE) ⋈{s:M1.id_fabricante = M2.id_fabricante ∧ M1.id_modelo < M2.id_modelo} ρ{s:M2} (MODELO_AERONAVE) )"
+  ],
+  "exp": "Otra aplicación de la reunión de una relación consigo misma mediante renombramiento.",
+  "sql": "SELECT M1.nombre, M2.nombre FROM MODELO_AERONAVE M1 JOIN MODELO_AERONAVE M2\nON M1.id_fabricante = M2.id_fabricante AND M1.id_modelo < M2.id_modelo;"
+ },
+ {
+  "cat": "Operaciones de conjuntos: unión, intersección y diferencia",
+  "q": "¿Qué personas trabajan en la escuela como instructores o como técnicos?",
+  "ra": [
+   "R1 ← π{s:id_persona} (INSTRUCTOR) ∪ π{s:id_persona} (TECNICO)",
+   "π{s:id_persona, nombres, apellidos} (R1 ⋈ PERSONA)"
+  ],
+  "exp": "La unión elimina duplicados, por lo que una persona que es instructor y técnico aparece una sola vez.",
+  "sql": "SELECT P.id_persona, P.nombres, P.apellidos FROM PERSONA P\nWHERE P.id_persona IN (SELECT id_persona FROM INSTRUCTOR UNION SELECT id_persona FROM TECNICO);"
+ },
+ {
+  "cat": "Operaciones de conjuntos: unión, intersección y diferencia",
+  "q": "¿Qué personas son al mismo tiempo instructores y estudiantes?",
+  "ra": [
+   "R1 ← π{s:id_persona} (INSTRUCTOR) ∩ π{s:id_persona} (ESTUDIANTE)",
+   "π{s:id_persona, nombres, apellidos} (R1 ⋈ PERSONA)"
+  ],
+  "exp": "Esta consulta es posible gracias a la especialización superpuesta del modelo extendido.",
+  "sql": "SELECT P.id_persona, P.nombres, P.apellidos FROM PERSONA P\nWHERE P.id_persona IN (SELECT id_persona FROM INSTRUCTOR INTERSECT SELECT id_persona FROM ESTUDIANTE);"
+ },
+ {
+  "cat": "Operaciones de conjuntos: unión, intersección y diferencia",
+  "q": "¿Qué instructores también son técnicos de mantenimiento?",
+  "ra": [
+   "π{s:nombres, apellidos} ( (π{s:id_persona} (INSTRUCTOR) ∩ π{s:id_persona} (TECNICO)) ⋈ PERSONA )"
+  ],
+  "exp": "Intersección entre dos subtipos de PERSONA.",
+  "sql": "SELECT P.nombres, P.apellidos FROM PERSONA P\nWHERE P.id_persona IN (SELECT id_persona FROM INSTRUCTOR INTERSECT SELECT id_persona FROM TECNICO);"
+ },
+ {
+  "cat": "Operaciones de conjuntos: unión, intersección y diferencia",
+  "q": "¿Qué estudiantes nunca han realizado un vuelo solo?",
+  "ra": [
+   "SOLO ← ρ{s:(id_persona)} ( π{s:id_estudiante} ( σ{s:tipo_vuelo = 'SOLO' ∧ estado = 'REALIZADO'} (VUELO) ) )",
+   "R1 ← π{s:id_persona} (ESTUDIANTE) − SOLO",
+   "π{s:codigo_estudiante, nombres, apellidos} (R1 ⋈ ESTUDIANTE ⋈ PERSONA)"
+  ],
+  "exp": "Se renombra id_estudiante como id_persona para que ambas relaciones sean compatibles con la diferencia.",
+  "sql": "SELECT E.codigo_estudiante, P.nombres, P.apellidos FROM ESTUDIANTE E NATURAL JOIN PERSONA P\nWHERE E.id_persona IN (SELECT id_persona FROM ESTUDIANTE\n  EXCEPT SELECT id_estudiante FROM VUELO WHERE tipo_vuelo = 'SOLO' AND estado = 'REALIZADO');"
+ },
+ {
+  "cat": "Operaciones de conjuntos: unión, intersección y diferencia",
+  "q": "¿Qué estudiantes no tienen certificado médico registrado?",
+  "ra": [
+   "π{s:codigo_estudiante} ( (π{s:id_persona} (ESTUDIANTE) − ρ{s:(id_persona)} (π{s:id_estudiante} (CERTIFICADO_MEDICO))) ⋈ ESTUDIANTE )"
+  ],
+  "exp": "La diferencia identifica a los estudiantes que aún no pueden programar vuelos (regla RN-16).",
+  "sql": "SELECT codigo_estudiante FROM ESTUDIANTE WHERE id_persona IN\n(SELECT id_persona FROM ESTUDIANTE EXCEPT SELECT id_estudiante FROM CERTIFICADO_MEDICO);"
+ },
+ {
+  "cat": "Operaciones de conjuntos: unión, intersección y diferencia",
+  "q": "¿Qué repuestos del catálogo nunca se han instalado en una orden de trabajo?",
+  "ra": [
+   "π{s:numero_parte, descripcion} ( (π{s:numero_parte} (REPUESTO) − π{s:numero_parte} (DETALLE_REPUESTO)) ⋈ REPUESTO )"
+  ],
+  "exp": "Ayuda a identificar repuestos de baja rotación.",
+  "sql": "SELECT numero_parte, descripcion FROM REPUESTO WHERE numero_parte IN\n(SELECT numero_parte FROM REPUESTO EXCEPT SELECT numero_parte FROM DETALLE_REPUESTO);"
+ },
+ {
+  "cat": "Operaciones de conjuntos: unión, intersección y diferencia",
+  "q": "¿Qué aeródromos nunca han sido destino de un vuelo de navegación?",
+  "ra": [
+   "π{s:codigo_oaci} (AERODROMO) − ρ{s:(codigo_oaci)} ( π{s:aerodromo_destino} ( σ{s:tipo_vuelo = 'NAVEGACION'} (VUELO) ) )"
+  ],
+  "exp": "Diferencia con renombramiento del atributo de rol aerodromo_destino.",
+  "sql": "SELECT codigo_oaci FROM AERODROMO EXCEPT SELECT aerodromo_destino FROM VUELO WHERE tipo_vuelo = 'NAVEGACION';"
+ },
+ {
+  "cat": "Operaciones de conjuntos: unión, intersección y diferencia",
+  "q": "¿Qué aeródromos han sido utilizados como origen o como destino de algún vuelo?",
+  "ra": [
+   "ρ{s:(codigo_oaci)} (π{s:aerodromo_origen} (VUELO)) ∪ ρ{s:(codigo_oaci)} (π{s:aerodromo_destino} (VUELO))"
+  ],
+  "exp": "Se renombran ambos atributos de rol para unir sus valores en una sola columna.",
+  "sql": "SELECT aerodromo_origen AS codigo_oaci FROM VUELO UNION SELECT aerodromo_destino FROM VUELO;"
+ },
+ {
+  "cat": "Operaciones de conjuntos: unión, intersección y diferencia",
+  "q": "¿Qué estudiantes se han matriculado tanto en el programa de Piloto Privado como en el de Piloto Comercial?",
+  "ra": [
+   "π{s:id_estudiante} (σ{s:id_programa = 1} (MATRICULA)) ∩ π{s:id_estudiante} (σ{s:id_programa = 2} (MATRICULA))"
+  ],
+  "exp": "Los identificadores 1 y 2 corresponden a los programas de Piloto Privado y Piloto Comercial.",
+  "sql": "SELECT id_estudiante FROM MATRICULA WHERE id_programa = 1 INTERSECT SELECT id_estudiante FROM MATRICULA WHERE id_programa = 2;"
+ },
+ {
+  "cat": "Operaciones de conjuntos: unión, intersección y diferencia",
+  "q": "¿Qué estudiantes matriculados en Piloto Privado aún no se han matriculado en Piloto Comercial?",
+  "ra": [
+   "π{s:id_estudiante} (σ{s:id_programa = 1} (MATRICULA)) − π{s:id_estudiante} (σ{s:id_programa = 2} (MATRICULA))"
+  ],
+  "exp": "Identifica estudiantes potenciales para el programa comercial.",
+  "sql": "SELECT id_estudiante FROM MATRICULA WHERE id_programa = 1 EXCEPT SELECT id_estudiante FROM MATRICULA WHERE id_programa = 2;"
+ },
+ {
+  "cat": "Operaciones de conjuntos: unión, intersección y diferencia",
+  "q": "¿Qué aeronaves no son aptas para programar vuelos, ya sea por su estado o por tener el certificado de aeronavegabilidad vencido?",
+  "ra": [
+   "π{s:matricula} ( σ{s:estado ≠ 'DISPONIBLE'} (AERONAVE) ) ∪ π{s:matricula} ( σ{s:fecha_vencimiento < FECHA_ACTUAL} (CERT_AERONAVEGABILIDAD) )"
+  ],
+  "exp": "Apoya la regla RN-15. FECHA_ACTUAL representa la fecha del sistema.",
+  "sql": "SELECT matricula FROM AERONAVE WHERE estado <> 'DISPONIBLE'\nUNION SELECT matricula FROM CERT_AERONAVEGABILIDAD WHERE fecha_vencimiento < CURRENT_DATE;"
+ },
+ {
+  "cat": "Operaciones de conjuntos: unión, intersección y diferencia",
+  "q": "¿Qué aeronaves no tienen certificado de aeronavegabilidad registrado?",
+  "ra": [
+   "π{s:matricula} (AERONAVE) − π{s:matricula} (CERT_AERONAVEGABILIDAD)"
+  ],
+  "exp": "Ambas relaciones proyectadas tienen el atributo matricula, por lo que son compatibles sin renombrar.",
+  "sql": "SELECT matricula FROM AERONAVE EXCEPT SELECT matricula FROM CERT_AERONAVEGABILIDAD;"
+ },
+ {
+  "cat": "División",
+  "q": "¿Qué instructores están habilitados en todos los modelos bimotores de la flota?",
+  "ra": [
+   "BIM ← π{s:id_modelo} ( σ{s:numero_motores = 2} (MODELO_AERONAVE) )",
+   "R1 ← π{s:id_instructor, id_modelo} (HABILITACION) ÷ BIM",
+   "π{s:nombres, apellidos} ( R1 ⋈{s:id_instructor = id_persona} PERSONA )"
+  ],
+  "exp": "El dividendo contiene los pares instructor–modelo y el divisor los modelos bimotores.",
+  "sql": "SELECT P.nombres, P.apellidos FROM PERSONA P JOIN INSTRUCTOR I ON P.id_persona = I.id_persona\nWHERE NOT EXISTS (SELECT 1 FROM MODELO_AERONAVE M WHERE M.numero_motores = 2\n  AND NOT EXISTS (SELECT 1 FROM HABILITACION H WHERE H.id_instructor = I.id_persona AND H.id_modelo = M.id_modelo));"
+ },
+ {
+  "cat": "División",
+  "q": "¿Qué estudiantes aprobaron todos los cursos del programa de Piloto Privado?",
+  "ra": [
+   "APR ← π{s:id_estudiante, id_curso} ( σ{s:nota_final ≥ 3.0} (CALIFICACION) )",
+   "CPP ← π{s:id_curso} ( σ{s:id_programa = 1} (PLAN_ESTUDIOS) )",
+   "π{s:codigo_estudiante} ( (APR ÷ CPP) ⋈{s:id_estudiante = id_persona} ESTUDIANTE )"
+  ],
+  "exp": "Determina qué estudiantes completaron la formación teórica del programa.",
+  "sql": "SELECT E.codigo_estudiante FROM ESTUDIANTE E WHERE NOT EXISTS (\n  SELECT 1 FROM PLAN_ESTUDIOS PE WHERE PE.id_programa = 1 AND NOT EXISTS (\n    SELECT 1 FROM CALIFICACION C WHERE C.id_estudiante = E.id_persona AND C.id_curso = PE.id_curso AND C.nota_final >= 3.0));"
+ },
+ {
+  "cat": "División",
+  "q": "¿Qué instructores están habilitados en todos los modelos fabricados por Cessna Aircraft?",
+  "ra": [
+   "CES ← π{s:id_modelo} ( π{s:id_fabricante} ( σ{s:nombre = 'Cessna Aircraft'} (FABRICANTE) ) ⋈ MODELO_AERONAVE )",
+   "π{s:id_instructor, id_modelo} (HABILITACION) ÷ CES"
+  ],
+  "exp": "Se proyecta id_fabricante antes de la reunión natural porque FABRICANTE y MODELO_AERONAVE también comparten el nombre de atributo nombre, que no debe intervenir en la unión.",
+  "sql": "SELECT I.id_persona FROM INSTRUCTOR I WHERE NOT EXISTS (\n  SELECT 1 FROM MODELO_AERONAVE M JOIN FABRICANTE F ON M.id_fabricante = F.id_fabricante\n  WHERE F.nombre = 'Cessna Aircraft' AND NOT EXISTS (\n    SELECT 1 FROM HABILITACION H WHERE H.id_instructor = I.id_persona AND H.id_modelo = M.id_modelo));"
+ },
+ {
+  "cat": "División",
+  "q": "¿Qué estudiantes han sido evaluados en todas las maniobras de la fase PRESOLO?",
+  "ra": [
+   "EV ← π{s:id_estudiante, id_maniobra} (VUELO ⋈ EVALUACION_MANIOBRA)",
+   "PRE ← π{s:id_maniobra} ( σ{s:fase = 'PRESOLO'} (MANIOBRA) )",
+   "EV ÷ PRE"
+  ],
+  "exp": "Indica qué estudiantes han practicado todo el temario previo a su primer vuelo solo.",
+  "sql": "SELECT E.id_persona FROM ESTUDIANTE E WHERE NOT EXISTS (\n  SELECT 1 FROM MANIOBRA M WHERE M.fase = 'PRESOLO' AND NOT EXISTS (\n    SELECT 1 FROM VUELO V JOIN EVALUACION_MANIOBRA EM ON V.id_vuelo = EM.id_vuelo\n    WHERE V.id_estudiante = E.id_persona AND EM.id_maniobra = M.id_maniobra));"
+ },
+ {
+  "cat": "División",
+  "q": "¿Qué técnicos han participado en órdenes de trabajo de todos los tipos registrados (inspecciones de 50 y 100 horas, anual y correctiva)?",
+  "ra": [
+   "TIPOS ← π{s:tipo_orden} (ORDEN_TRABAJO)",
+   "TT ← π{s:id_tecnico, tipo_orden} (ASIGNACION_TECNICO ⋈ ORDEN_TRABAJO)",
+   "π{s:nombres, apellidos} ( (TT ÷ TIPOS) ⋈{s:id_tecnico = id_persona} PERSONA )"
+  ],
+  "exp": "Identifica a los técnicos con experiencia en todos los tipos de mantenimiento. ASIGNACION_TECNICO y ORDEN_TRABAJO solo comparten id_orden.",
+  "sql": "SELECT P.nombres, P.apellidos FROM TECNICO T JOIN PERSONA P ON T.id_persona = P.id_persona WHERE NOT EXISTS (\n  SELECT 1 FROM (SELECT DISTINCT tipo_orden FROM ORDEN_TRABAJO) X WHERE NOT EXISTS (\n    SELECT 1 FROM ASIGNACION_TECNICO A JOIN ORDEN_TRABAJO O ON A.id_orden = O.id_orden\n    WHERE A.id_tecnico = T.id_persona AND O.tipo_orden = X.tipo_orden));"
+ },
+ {
+  "cat": "Funciones de agregación y agrupación",
+  "q": "¿Cuántos vuelos ha realizado cada estudiante?",
+  "ra": [
+   "γ{s:id_estudiante; COUNT(id_vuelo) → total_vuelos} ( σ{s:estado = 'REALIZADO'} (VUELO) )"
+  ],
+  "exp": "Se agrupa por estudiante y se cuentan sus vuelos realizados.",
+  "sql": "SELECT id_estudiante, COUNT(id_vuelo) AS total_vuelos FROM VUELO WHERE estado = 'REALIZADO' GROUP BY id_estudiante;"
+ },
+ {
+  "cat": "Funciones de agregación y agrupación",
+  "q": "¿Cuántas horas de vuelo ha acumulado cada estudiante?",
+  "ra": [
+   "DUR ← π{s:id_estudiante, horometro_final − horometro_inicial → duracion} ( σ{s:estado = 'REALIZADO'} (VUELO) )",
+   "γ{s:id_estudiante; SUM(duracion) → horas_acumuladas} (DUR)"
+  ],
+  "exp": "Calcula el atributo derivado horas_acumuladas mediante una proyección generalizada y una suma.",
+  "sql": "SELECT id_estudiante, ROUND(SUM(horometro_final - horometro_inicial), 1) AS horas_acumuladas\nFROM VUELO WHERE estado = 'REALIZADO' GROUP BY id_estudiante;"
+ },
+ {
+  "cat": "Funciones de agregación y agrupación",
+  "q": "¿Cuál es el promedio de las notas finales de cada curso teórico?",
+  "ra": [
+   "π{s:nombre, promedio} ( γ{s:id_curso; AVG(nota_final) → promedio} (CALIFICACION) ⋈ CURSO )"
+  ],
+  "exp": "Primero se agrupa por curso y luego se une con CURSO para mostrar su nombre.",
+  "sql": "SELECT C.nombre, ROUND(AVG(CA.nota_final), 2) AS promedio FROM CALIFICACION CA JOIN CURSO C ON CA.id_curso = C.id_curso GROUP BY C.nombre;"
+ },
+ {
+  "cat": "Funciones de agregación y agrupación",
+  "q": "¿Cuánto ha pagado en total cada estudiante por cada una de sus matrículas?",
+  "ra": [
+   "γ{s:id_estudiante, id_matricula; SUM(valor) → total_pagado} (MATRICULA ⋈ PAGO)"
+  ],
+  "exp": "MATRICULA y PAGO solo comparten id_matricula, por lo que se usa reunión natural.",
+  "sql": "SELECT M.id_estudiante, M.id_matricula, SUM(P.valor) AS total_pagado FROM MATRICULA M JOIN PAGO P ON M.id_matricula = P.id_matricula\nGROUP BY M.id_estudiante, M.id_matricula;"
+ },
+ {
+  "cat": "Funciones de agregación y agrupación",
+  "q": "¿Cuántas horas de mantenimiento ha trabajado cada técnico?",
+  "ra": [
+   "γ{s:id_tecnico; SUM(horas_trabajadas) → horas, COUNT(id_orden) → ordenes} (ASIGNACION_TECNICO)"
+  ],
+  "exp": "Un mismo operador de agregación puede calcular varias funciones.",
+  "sql": "SELECT id_tecnico, SUM(horas_trabajadas) AS horas, COUNT(id_orden) AS ordenes FROM ASIGNACION_TECNICO GROUP BY id_tecnico;"
+ },
+ {
+  "cat": "Funciones de agregación y agrupación",
+  "q": "¿Cuál es el costo total de los repuestos instalados en cada orden de trabajo?",
+  "ra": [
+   "C ← π{s:id_orden, cantidad × costo_unitario → costo} (DETALLE_REPUESTO ⋈ REPUESTO)",
+   "γ{s:id_orden; SUM(costo) → costo_repuestos} (C)"
+  ],
+  "exp": "DETALLE_REPUESTO y REPUESTO solo comparten numero_parte; la proyección generalizada calcula el costo por línea.",
+  "sql": "SELECT D.id_orden, SUM(D.cantidad * R.costo_unitario) AS costo_repuestos FROM DETALLE_REPUESTO D\nJOIN REPUESTO R ON D.numero_parte = R.numero_parte GROUP BY D.id_orden;"
+ },
+ {
+  "cat": "Funciones de agregación y agrupación",
+  "q": "¿Cuántas aeronaves de la flota tiene cada fabricante?",
+  "ra": [
+   "R1 ← π{s:matricula, id_fabricante} (AERONAVE ⋈ MODELO_AERONAVE)",
+   "π{s:nombre, cantidad} ( γ{s:id_fabricante; COUNT(matricula) → cantidad} (R1) ⋈ FABRICANTE )"
+  ],
+  "exp": "Se proyecta antes de unir con FABRICANTE para evitar que el atributo nombre de MODELO_AERONAVE intervenga en la reunión natural.",
+  "sql": "SELECT F.nombre, COUNT(A.matricula) AS cantidad FROM AERONAVE A JOIN MODELO_AERONAVE M ON A.id_modelo = M.id_modelo\nJOIN FABRICANTE F ON M.id_fabricante = F.id_fabricante GROUP BY F.nombre;"
+ },
+ {
+  "cat": "Funciones de agregación y agrupación",
+  "q": "¿Cuántos vuelos se han realizado de cada tipo y cuál es su duración promedio?",
+  "ra": [
+   "DUR ← π{s:tipo_vuelo, horometro_final − horometro_inicial → duracion} ( σ{s:estado = 'REALIZADO'} (VUELO) )",
+   "γ{s:tipo_vuelo; COUNT(*) → vuelos, AVG(duracion) → duracion_promedio} (DUR)"
+  ],
+  "exp": "Combina proyección generalizada y agregación por tipo de vuelo.",
+  "sql": "SELECT tipo_vuelo, COUNT(*) AS vuelos, ROUND(AVG(horometro_final - horometro_inicial), 2) AS duracion_promedio\nFROM VUELO WHERE estado = 'REALIZADO' GROUP BY tipo_vuelo;"
+ },
+ {
+  "cat": "Funciones de agregación y agrupación",
+  "q": "¿Qué maniobras tienen una calificación promedio inferior a 3,5?",
+  "ra": [
+   "PROM ← γ{s:id_maniobra; AVG(calificacion) → promedio} (EVALUACION_MANIOBRA)",
+   "π{s:nombre, promedio} ( σ{s:promedio < 3.5} (PROM) ⋈ MANIOBRA )"
+  ],
+  "exp": "La selección se aplica sobre el resultado de la agregación, lo que en SQL corresponde a la cláusula HAVING.",
+  "sql": "SELECT M.nombre, ROUND(AVG(E.calificacion), 2) AS promedio FROM EVALUACION_MANIOBRA E JOIN MANIOBRA M ON E.id_maniobra = M.id_maniobra\nGROUP BY M.nombre HAVING AVG(E.calificacion) < 3.5;"
+ },
+ {
+  "cat": "Funciones de agregación y agrupación",
+  "q": "¿Cuántos estudiantes hay matriculados en cada programa según el estado de la matrícula?",
+  "ra": [
+   "π{s:nombre, estado, total} ( γ{s:id_programa, estado; COUNT(id_estudiante) → total} (MATRICULA) ⋈ PROGRAMA )"
+  ],
+  "exp": "Agrupación por dos atributos.",
+  "sql": "SELECT P.nombre, M.estado, COUNT(M.id_estudiante) AS total FROM MATRICULA M JOIN PROGRAMA P ON M.id_programa = P.id_programa\nGROUP BY P.nombre, M.estado;"
+ },
+ {
+  "cat": "Reuniones externas",
+  "q": "¿Cuál es el número y la fecha de vencimiento del certificado de aeronavegabilidad de cada aeronave, incluidas las que no tienen certificado?",
+  "ra": [
+   "π{s:matricula, numero_certificado, fecha_vencimiento} (AERONAVE ⟕ CERT_AERONAVEGABILIDAD)"
+  ],
+  "exp": "AERONAVE y CERT_AERONAVEGABILIDAD comparten matricula; las aeronaves sin certificado aparecen con valores nulos.",
+  "sql": "SELECT A.matricula, C.numero_certificado, C.fecha_vencimiento FROM AERONAVE A LEFT JOIN CERT_AERONAVEGABILIDAD C ON A.matricula = C.matricula;"
+ },
+ {
+  "cat": "Reuniones externas",
+  "q": "¿Cuál es la fecha de vencimiento del certificado médico de cada estudiante, incluidos los que no lo tienen?",
+  "ra": [
+   "π{s:codigo_estudiante, numero_certificado, fecha_vencimiento} ( ESTUDIANTE ⟕{s:ESTUDIANTE.id_persona = CERTIFICADO_MEDICO.id_estudiante} CERTIFICADO_MEDICO )"
+  ],
+  "exp": "Reunión externa izquierda con condición explícita.",
+  "sql": "SELECT E.codigo_estudiante, C.numero_certificado, C.fecha_vencimiento FROM ESTUDIANTE E\nLEFT JOIN CERTIFICADO_MEDICO C ON E.id_persona = C.id_estudiante;"
+ },
+ {
+  "cat": "Reuniones externas",
+  "q": "¿Cuántas unidades se han instalado de cada repuesto del catálogo, incluidos los que nunca se han instalado?",
+  "ra": [
+   "γ{s:numero_parte; SUM(cantidad) → unidades} ( π{s:numero_parte, cantidad} (REPUESTO ⟕ DETALLE_REPUESTO) )"
+  ],
+  "exp": "Los repuestos sin instalaciones conservan su tupla y obtienen una suma nula.",
+  "sql": "SELECT R.numero_parte, SUM(D.cantidad) AS unidades FROM REPUESTO R LEFT JOIN DETALLE_REPUESTO D ON R.numero_parte = D.numero_parte\nGROUP BY R.numero_parte;"
+ },
+ {
+  "cat": "Consultas compuestas",
+  "q": "¿Qué estudiantes con matrícula activa tienen el certificado médico vencido?",
+  "ra": [
+   "ACT ← ρ{s:(id_persona)} ( π{s:id_estudiante} ( σ{s:estado = 'ACTIVA'} (MATRICULA) ) )",
+   "VEN ← ρ{s:(id_persona)} ( π{s:id_estudiante} ( σ{s:fecha_vencimiento < FECHA_ACTUAL} (CERTIFICADO_MEDICO) ) )",
+   "π{s:nombres, apellidos, correo} ( (ACT ∩ VEN) ⋈ PERSONA )"
+  ],
+  "exp": "Genera una alerta para que el estudiante renueve su certificado antes de volar.",
+  "sql": "SELECT P.nombres, P.apellidos, P.correo FROM PERSONA P WHERE P.id_persona IN (\n  SELECT id_estudiante FROM MATRICULA WHERE estado = 'ACTIVA'\n  INTERSECT SELECT id_estudiante FROM CERTIFICADO_MEDICO WHERE fecha_vencimiento < CURRENT_DATE);"
+ },
+ {
+  "cat": "Consultas compuestas",
+  "q": "¿Existe algún vuelo en el que el instructor no estuviera habilitado en el modelo de la aeronave utilizada?",
+  "ra": [
+   "VM ← π{s:id_vuelo, id_instructor, id_modelo} ( σ{s:id_instructor IS NOT NULL} (VUELO) ⋈{s:VUELO.matricula = AERONAVE.matricula} AERONAVE )",
+   "π{s:id_instructor, id_modelo} (VM) − π{s:id_instructor, id_modelo} (HABILITACION)"
+  ],
+  "exp": "Consulta de auditoría de la regla RN-14: un resultado vacío confirma que todos los vuelos cumplen la regla. Se usa reunión theta porque VUELO y AERONAVE comparten, además de matricula, el nombre de atributo estado.",
+  "sql": "SELECT DISTINCT V.id_instructor, A.id_modelo FROM VUELO V JOIN AERONAVE A ON V.matricula = A.matricula WHERE V.id_instructor IS NOT NULL\nEXCEPT SELECT id_instructor, id_modelo FROM HABILITACION;"
+ },
+ {
+  "cat": "Consultas compuestas",
+  "q": "¿Qué porcentaje de las horas mínimas de vuelo exigidas ha completado cada estudiante con matrícula activa?",
+  "ra": [
+   "HORAS ← γ{s:id_estudiante; SUM(horometro_final − horometro_inicial) → horas} ( σ{s:estado = 'REALIZADO'} (VUELO) )",
+   "R1 ← (σ{s:estado = 'ACTIVA'} (MATRICULA) ⋈ HORAS) ⋈{s:MATRICULA.id_programa = PROGRAMA.id_programa} PROGRAMA",
+   "π{s:id_estudiante, PROGRAMA.nombre, horas, horas × 100 / horas_minimas_vuelo → porcentaje_avance} (R1)"
+  ],
+  "exp": "Permite seguir el avance de cada estudiante frente a los requisitos de su programa.",
+  "sql": "SELECT M.id_estudiante, P.nombre, ROUND(H.horas, 1) AS horas, ROUND(H.horas * 100 / P.horas_minimas_vuelo, 1) AS porcentaje_avance\nFROM MATRICULA M JOIN (SELECT id_estudiante, SUM(horometro_final - horometro_inicial) AS horas FROM VUELO\n  WHERE estado = 'REALIZADO' GROUP BY id_estudiante) H ON M.id_estudiante = H.id_estudiante\nJOIN PROGRAMA P ON M.id_programa = P.id_programa WHERE M.estado = 'ACTIVA';"
+ },
+ {
+  "cat": "Consultas compuestas",
+  "q": "¿Cuál es la aeronave que más horas ha volado en los vuelos registrados?",
+  "ra": [
+   "H ← γ{s:matricula; SUM(horometro_final − horometro_inicial) → horas} ( σ{s:estado = 'REALIZADO'} (VUELO) )",
+   "MX ← γ{s:MAX(horas) → max_horas} (H)",
+   "π{s:matricula, horas} ( H ⋈{s:horas = max_horas} MX )"
+  ],
+  "exp": "Se calcula el máximo y se reúne con el resultado agrupado para identificar la aeronave.",
+  "sql": "WITH H AS (SELECT matricula, SUM(horometro_final - horometro_inicial) AS horas FROM VUELO WHERE estado = 'REALIZADO' GROUP BY matricula)\nSELECT matricula, ROUND(horas, 1) AS horas FROM H WHERE horas = (SELECT MAX(horas) FROM H);"
+ },
+ {
+  "cat": "Consultas compuestas",
+  "q": "¿Qué instructores han impartido vuelos en más de un modelo de aeronave distinto?",
+  "ra": [
+   "IM ← π{s:id_instructor, id_modelo} ( σ{s:id_instructor IS NOT NULL} (VUELO) ⋈{s:VUELO.matricula = AERONAVE.matricula} AERONAVE )",
+   "C ← γ{s:id_instructor; COUNT(id_modelo) → modelos} (IM)",
+   "π{s:nombres, apellidos, modelos} ( σ{s:modelos > 1} (C) ⋈{s:id_instructor = id_persona} PERSONA )"
+  ],
+  "exp": "La proyección previa elimina los pares instructor–modelo repetidos antes de contar.",
+  "sql": "SELECT P.nombres, P.apellidos, COUNT(DISTINCT A.id_modelo) AS modelos FROM VUELO V JOIN AERONAVE A ON V.matricula = A.matricula\nJOIN PERSONA P ON V.id_instructor = P.id_persona GROUP BY P.id_persona, P.nombres, P.apellidos HAVING COUNT(DISTINCT A.id_modelo) > 1;"
+ },
+ {
+  "cat": "Consultas compuestas",
+  "q": "¿Qué aeronaves tuvieron órdenes de mantenimiento correctivo y en cuántas ocasiones?",
+  "ra": [
+   "π{s:matricula, correctivos} ( σ{s:correctivos ≥ 1} ( γ{s:matricula; COUNT(id_orden) → correctivos} ( σ{s:tipo_orden = 'CORRECTIVA'} (ORDEN_TRABAJO) ) ) )"
+  ],
+  "exp": "Ayuda a identificar las aeronaves con más fallas.",
+  "sql": "SELECT matricula, COUNT(id_orden) AS correctivos FROM ORDEN_TRABAJO WHERE tipo_orden = 'CORRECTIVA' GROUP BY matricula;"
+ }
+]
